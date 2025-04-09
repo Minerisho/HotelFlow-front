@@ -1,0 +1,96 @@
+/* ReservasForm.css */
+
+.reservas-form-container {
+    max-width: 600px;
+    margin: 30px auto;
+    padding: 20px;
+    font-family: sans-serif;
+    background-color: #f7fafc; /* Fondo claro para contrastar con el formulario */
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  .reservas-form-container h2 {
+    color: #2c3e50; /* Azul oscuro/gris */
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  /* Mensajes de estado */
+  .mensaje {
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    border-radius: 4px;
+    font-weight: bold;
+  }
+  
+  .mensaje.success {
+    background-color: #e6fffa; /* Verde muy claro */
+    color: #2f855a; /* Verde oscuro */
+  }
+  
+  .mensaje.error {
+    background-color: #fff5f5; /* Rojo muy claro */
+    color: #e53e3e; /* Rojo oscuro */
+  }
+  
+  /* Grupos del formulario */
+  .form-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-group label {
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #4a5568; /* Gris medio */
+    font-size: 14px;
+  }
+  
+  .form-group input,
+  .form-group select {
+    padding: 8px 10px;
+    border: 1px solid #cbd5e0; /* Borde gris claro */
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  
+  /* Botón para crear la reserva */
+  .btn-crear {
+    background-color: #2c3e50; /* Azul oscuro/gris */
+    color: white;
+    padding: 10px 15px;
+    border: none; /* Sin borde por defecto */
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    display: block;
+    width: 100%;
+    margin-top: 20px;
+    transition: background-color 0.3s;
+  }
+  
+  .btn-crear:hover {
+    background-color: #1a252f; /* Azul más oscuro */
+  }
+  
+  /* Estilos responsivos para pantallas pequeñas */
+  @media (max-width: 480px) {
+    .reservas-form-container {
+      padding: 15px;
+    }
+    
+    .form-group input,
+    .form-group select {
+      font-size: 12px;
+      padding: 6px 8px;
+    }
+    
+    .btn-crear {
+      padding: 8px 12px;
+      font-size: 14px;
+    }
+  }
+  

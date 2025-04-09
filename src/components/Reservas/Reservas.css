@@ -1,0 +1,362 @@
+/* Reservas.css */
+
+.Reservas-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: sans-serif; /* Añadido para mejor legibilidad */
+}
+
+.Reservas-container h2 {
+  color: #2c3e50; /* Azul oscuro/gris */
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Barra de acciones (Ej: Botón Nueva Reserva) */
+.actions-bar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.btn-crear {
+  background-color: #2c3e50; /* Azul oscuro/gris */
+  color: white;
+  padding: 10px 15px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: bold;
+  display: inline-block;
+  transition: background-color 0.3s;
+  border: none; /* Asegurar que no tenga borde por defecto */
+  cursor: pointer;
+}
+
+.btn-crear:hover {
+  background-color: #1a252f; /* Azul más oscuro */
+}
+
+/* Contenedor de Filtros (Aunque comentado en JS, se incluye por si se reactiva) */
+.filtros-container {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.filtros-container h3 {
+  color: #2c3e50; /* Azul oscuro/gris */
+  margin-top: 0; /* Quitar margen superior por defecto */
+  margin-bottom: 15px; /* Aumentar espacio inferior */
+  font-size: 18px;
+}
+
+.filtros-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px; /* Espacio entre elementos del filtro */
+}
+
+.filtro-grupo {
+  display: flex;
+  flex-direction: column;
+  min-width: 180px; /* Ancho mínimo para cada grupo de filtro */
+  flex: 1; /* Permite que crezcan para ocupar espacio */
+}
+
+.filtro-grupo label {
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #4a5568; /* Gris medio */
+  font-size: 14px; /* Tamaño de letra de la etiqueta */
+}
+
+.filtro-grupo select,
+.filtro-grupo input {
+  padding: 8px 10px; /* Ajuste de padding */
+  border: 1px solid #cbd5e0; /* Borde gris claro */
+  border-radius: 4px;
+  font-size: 14px; /* Tamaño de letra del input/select */
+}
+
+.filtro-acciones {
+  display: flex;
+  gap: 10px; /* Espacio entre botones */
+  align-items: flex-end; /* Alinear botones abajo */
+  flex: 1;
+  min-width: 150px; /* Ancho mínimo para la sección de botones */
+  justify-content: flex-start; /* Alinear botones a la izquierda */
+}
+
+.btn-aplicar, .btn-reset {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  font-size: 14px; /* Tamaño de letra de botones */
+}
+
+.btn-aplicar {
+  background-color: #4299e1; /* Azul claro */
+  color: white;
+}
+
+.btn-aplicar:hover {
+  background-color: #3182ce; /* Azul más oscuro */
+}
+
+.btn-reset {
+  background-color: #e2e8f0; /* Gris muy claro */
+  color: #4a5568; /* Gris medio */
+}
+
+.btn-reset:hover {
+  background-color: #cbd5e0; /* Gris un poco más oscuro */
+}
+
+/* Grid para mostrar las tarjetas de reserva */
+.Reservas-grid {
+  display: grid;
+  /* Ajusta minmax para el ancho deseado de las tarjetas */
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px; /* Espacio entre tarjetas */
+}
+
+/* Estilo de cada tarjeta de reserva */
+.reserva-card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra suave */
+  padding: 20px; /* Más padding interno */
+  display: flex; /* Usar flex para organizar contenido */
+  flex-direction: column; /* Contenido en columna */
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.reserva-card:hover {
+  transform: translateY(-3px); /* Efecto de elevación al pasar el ratón */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Sombra más pronunciada */
+}
+
+/* Cabecera de la tarjeta (Número y Estado) */
+.reserva-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px; /* Espacio debajo de la cabecera */
+  border-bottom: 1px solid #e2e8f0; /* Línea divisoria */
+  padding-bottom: 10px; /* Espacio sobre la línea */
+}
+
+.reserva-header h3 {
+  color: #2c3e50; /* Azul oscuro/gris */
+  margin: 0;
+  font-size: 1.1em; /* Tamaño del título de la tarjeta */
+}
+
+/* Badge para el estado de la reserva */
+.estado-badge {
+  padding: 5px 12px; /* Padding ajustado */
+  border-radius: 20px; /* Más redondeado */
+  font-size: 12px;
+  font-weight: bold;
+  color: white;
+  text-transform: uppercase; /* Estado en mayúsculas */
+  letter-spacing: 0.5px; /* Espaciado ligero */
+}
+
+/* Colores específicos para cada estado de reserva */
+.estado-confirmada {
+  background-color: #48bb78; /* Verde */
+}
+
+.estado-pendiente {
+  background-color: #ed8936; /* Naranja */
+}
+
+.estado-cancelado { /* Corregido: Era 'cancelado' no 'cancelada' en JS*/
+  background-color: #e53e3e; /* Rojo */
+}
+
+/* Información de la reserva */
+.reserva-info {
+  margin-bottom: 15px; /* Espacio debajo de la info */
+  flex-grow: 1; /* Hace que esta sección ocupe el espacio disponible */
+}
+
+.reserva-info p {
+  margin: 8px 0; /* Espacio vertical entre líneas de info */
+  color: #4a5568; /* Gris medio */
+  font-size: 14px; /* Tamaño de letra del detalle */
+}
+
+.reserva-info p strong {
+  color: #2d3748; /* Gris más oscuro para el 'label' */
+  margin-right: 5px; /* Pequeño espacio después del label */
+}
+
+/* Acciones de la reserva (Editar, etc.) */
+.reserva-acciones {
+  display: flex;
+  justify-content: flex-end; /* Alinear botones a la derecha */
+  gap: 10px; /* Espacio entre botones si hubiera más */
+  margin-top: auto; /* Empuja las acciones al final de la tarjeta */
+  padding-top: 15px; /* Espacio sobre los botones */
+  border-top: 1px solid #e2e8f0; /* Línea divisoria opcional */
+}
+
+/* Botones dentro de la tarjeta */
+.btn-editar { /* Ya definido en Habitaciones, se puede reutilizar */
+  padding: 8px 15px; /* Padding ajustado */
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  text-align: center;
+  text-decoration: none;
+  background-color: #4299e1; /* Azul claro */
+  color: white;
+  border: none;
+}
+
+.btn-editar:hover {
+  background-color: #3182ce; /* Azul más oscuro */
+}
+
+/* Podrías añadir estilos para btn-confirmar, btn-cancelar si los implementas */
+/* Ejemplo:
+.btn-confirmar {
+  padding: 8px 15px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  background-color: #48bb78; // Verde
+  color: white;
+  border: none;
+}
+.btn-confirmar:hover {
+  background-color: #38a169;
+}
+
+.btn-cancelar-accion { // Evitar conflicto con clase global .btn-cancelar del form
+  padding: 8px 15px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  background-color: #f56565; // Rojo claro
+  color: white;
+  border: none;
+}
+.btn-cancelar-accion:hover {
+    background-color: #e53e3e; // Rojo
+}
+*/
+
+/* Mensajes de estado y error */
+.error-message {
+  background-color: #fed7d7; /* Rojo muy claro */
+  color: #c53030; /* Rojo oscuro */
+  padding: 12px 15px; /* Padding ajustado */
+  border-radius: 4px;
+  margin: 15px 0; /* Margen vertical */
+  border-left: 4px solid #c53030; /* Borde izquierdo para énfasis */
+}
+
+.no-results {
+  text-align: center;
+  color: #4a5568; /* Gris medio */
+  margin: 40px 0; /* Más margen vertical */
+  font-size: 16px;
+  font-style: italic; /* Estilo itálico */
+}
+
+.loading {
+  text-align: center;
+  color: #4a5568; /* Gris medio */
+  margin: 40px 0; /* Más margen vertical */
+  font-size: 16px;
+}
+.loading::after { /* Añadir puntos animados */
+    content: '...';
+    display: inline-block;
+    animation: loading-dots 1.5s infinite;
+}
+
+.btn-confirmar {
+  padding: 8px 15px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  background-color: #48bb78; /* Verde cuando está activo */
+  color: white;
+  border: none;
+  margin-right: 5px;
+  transition: background-color 0.2s;
+}
+.btn-confirmar:disabled {
+  background-color: #cbd5e0; /* Gris cuando está deshabilitado */
+  cursor: not-allowed;
+}
+.btn-cancelar-accion {
+  padding: 8px 15px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  background-color: #e53e3e; /* Rojo */
+  color: white;
+  border: none;
+  transition: background-color 0.2s;
+}
+.btn-cancelar-accion:hover {
+  background-color: #c53030;
+}
+
+
+@keyframes loading-dots {
+    0%, 20% { content: '.'; }
+    40% { content: '..'; }
+    60%, 100% { content: '...'; }
+}
+
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+  .filtros-form {
+    flex-direction: column; /* Filtros en columna en pantallas pequeñas */
+    align-items: stretch; /* Estirar elementos del filtro */
+  }
+
+  .filtro-grupo, .filtro-acciones {
+    min-width: 100%; /* Ocupar todo el ancho */
+  }
+
+  .filtro-acciones {
+    justify-content: space-around; /* Distribuir botones */
+  }
+
+  .Reservas-grid {
+    grid-template-columns: 1fr; /* Una columna en pantallas pequeñas */
+  }
+
+  .Reservas-container h2 {
+      font-size: 1.5em; /* Reducir tamaño título */
+  }
+
+  .reserva-card {
+      padding: 15px; /* Menos padding en tarjetas */
+  }
+
+  .reserva-header h3 {
+      font-size: 1em; /* Título de tarjeta más pequeño */
+  }
+
+  .actions-bar {
+      justify-content: center; /* Centrar botón crear */
+  }
+}

@@ -1,0 +1,501 @@
+.habitaciones-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.habitaciones-container h2 {
+  color: #2c3e50;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.actions-bar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.btn-crear {
+  background-color: #2c3e50;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: bold;
+  display: inline-block;
+  transition: background-color 0.3s;
+}
+
+.btn-crear:hover {
+  background-color: #1a252f;
+}
+
+.filtros-container {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.filtros-container h3 {
+  color: #2c3e50;
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.filtros-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.filtro-grupo {
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+  flex: 1;
+}
+
+.filtro-grupo label {
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #4a5568;
+}
+
+.filtro-grupo select, .filtro-grupo input {
+  padding: 8px;
+  border: 1px solid #cbd5e0;
+  border-radius: 4px;
+}
+
+.filtro-acciones {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  flex: 1;
+  min-width: 200px;
+}
+
+.btn-aplicar, .btn-reset {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.btn-aplicar {
+  background-color: #4299e1;
+  color: white;
+}
+
+.btn-aplicar:hover {
+  background-color: #3182ce;
+}
+
+.btn-reset {
+  background-color: #e2e8f0;
+  color: #4a5568;
+}
+
+.btn-reset:hover {
+  background-color: #cbd5e0;
+}
+
+.habitaciones-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.habitacion-card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.habitacion-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.habitacion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.habitacion-header h3 {
+  color: #2c3e50;
+  margin: 0;
+  font-size: 1.1em;
+}
+
+.estado-badge {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  color: white;
+  white-space: nowrap;
+}
+
+.estado-disponible {
+  background-color: #48bb78;
+}
+
+.estado-ocupada {
+  background-color: #ed8936;
+}
+
+.estado-limpieza {
+  background-color: #4299e1;
+}
+
+.estado-mantenimiento {
+  background-color: #e53e3e;
+}
+
+.habitacion-info {
+  margin-bottom: 15px;
+  flex-grow: 1;
+}
+
+.habitacion-info p {
+  margin: 5px 0;
+  color: #4a5568;
+  font-size: 0.9em;
+}
+
+.habitacion-info p strong {
+  color: #2d3748;
+}
+
+
+.descripcion {
+  font-size: 14px;
+  max-height: 60px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #718096;
+}
+
+.habitacion-acciones {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  gap: 10px;
+}
+
+.btn-editar, .btn-eliminar {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  flex: 1;
+  text-align: center;
+  text-decoration: none;
+}
+
+.btn-editar {
+  background-color: #4299e1;
+  color: white;
+  border: none;
+}
+
+.btn-editar:hover {
+  background-color: #3182ce;
+}
+
+.btn-eliminar {
+  background-color: #e53e3e;
+  color: white;
+  border: none;
+}
+
+.btn-eliminar:hover {
+  background-color: #c53030;
+}
+
+.cambio-estado {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+}
+
+.cambio-estado label {
+  font-size: 14px;
+  color: #4a5568;
+  font-weight: 500;
+}
+
+.cambio-estado select {
+  padding: 6px;
+  border: 1px solid #cbd5e0;
+  border-radius: 4px;
+  background-color: white;
+}
+
+.error-message {
+  background-color: #fed7d7;
+  color: #c53030;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.no-results {
+  text-align: center;
+  color: #4a5568;
+  margin: 30px 0;
+  font-size: 16px;
+}
+
+.loading {
+  text-align: center;
+  color: #4a5568;
+  margin: 30px 0;
+  font-size: 16px;
+}
+
+.habitacion-form-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.habitacion-form {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.habitacion-form .form-group {
+  margin-bottom: 15px;
+}
+
+.habitacion-form label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #4a5568;
+}
+
+.habitacion-form input,
+.habitacion-form select,
+.habitacion-form textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #cbd5e0;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.habitacion-form textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-guardar,
+.btn-cancelar {
+  padding: 10px 15px;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border: none;
+  flex: 1;
+}
+
+.btn-guardar {
+  background-color: #48bb78;
+  color: white;
+}
+
+.btn-guardar:hover {
+  background-color: #38a169;
+}
+
+.btn-guardar:disabled {
+  background-color: #a0aec0;
+  cursor: not-allowed;
+}
+
+.btn-cancelar {
+  background-color: #e2e8f0;
+  color: #4a5568;
+}
+
+.btn-cancelar:hover {
+  background-color: #cbd5e0;
+}
+
+.success-message {
+  background-color: #c6f6d5;
+  color: #2f855a;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.ocupacion-details {
+margin-top: 15px;
+padding-top: 15px;
+border-top: 1px solid #eee;
+}
+.ocupacion-details h6 {
+color: #555;
+font-size: 14px;
+margin-bottom: 8px;
+font-weight: 600;
+}
+.ocupacion-details p {
+margin-bottom: 4px;
+font-size: 13px;
+color: #333;
+}
+.ocupacion-details p strong {
+  font-weight: 500;
+  min-width: 80px;
+  display: inline-block;
+  color: #2d3748;
+}
+.ocupacion-acciones {
+display: flex;
+gap: 10px;
+margin-top: 12px;
+}
+.ocupacion-acciones button {
+padding: 5px 10px;
+border-radius: 4px;
+font-size: 12px;
+font-weight: 500;
+cursor: pointer;
+transition: background-color 0.2s, border-color 0.2s;
+border: 1px solid transparent;
+flex: 1;
+text-align: center;
+}
+.btn-editar-salida {
+background-color: #ffc107;
+border-color: #ffc107;
+color: #212529;
+}
+.btn-editar-salida:hover {
+background-color: #e0a800;
+border-color: #d39e00;
+}
+.btn-desocupar {
+background-color: #ed8936;
+border-color: #ed8936;
+color: white;
+}
+.btn-desocupar:hover {
+background-color: #dd6b20;
+border-color: #c05621;
+}
+.modal-backdrop {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background-color: rgba(0, 0, 0, 0.6);
+display: flex;
+justify-content: center;
+align-items: center;
+z-index: 1000;
+}
+.modal-content {
+background-color: white;
+padding: 25px;
+border-radius: 8px;
+box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+min-width: 400px;
+max-width: 500px;
+width: 90%;
+z-index: 1001;
+}
+.modal-content h2 {
+color: #2c3e50;
+margin-top: 0;
+margin-bottom: 15px;
+text-align: center;
+font-size: 1.5em;
+}
+.modal-content p {
+margin-bottom: 10px;
+color: #4a5568;
+line-height: 1.5;
+}
+.modal-content .form-group {
+ margin-bottom: 15px;
+}
+.modal-content label {
+ display: block;
+ margin-bottom: 5px;
+ font-weight: 500;
+ color: #4a5568;
+}
+.modal-content input[type="datetime-local"],
+.modal-content input[type="number"] {
+ width: 100%;
+ padding: 10px;
+ border: 1px solid #cbd5e0;
+ border-radius: 4px;
+ font-size: 14px;
+ box-sizing: border-box;
+}
+.modal-actions {
+display: flex;
+justify-content: flex-end;
+gap: 10px;
+margin-top: 20px;
+padding-top: 15px;
+border-top: 1px solid #eee;
+}
+.modal-actions button {
+padding: 10px 15px;
+border-radius: 4px;
+font-weight: 500;
+cursor: pointer;
+transition: background-color 0.2s;
+border: none;
+}
+
+
+@media (max-width: 768px) {
+  .filtros-form {
+      flex-direction: column;
+  }
+
+  .filtro-grupo, .filtro-acciones {
+      min-width: 100%;
+  }
+
+  .habitaciones-grid {
+      grid-template-columns: 1fr;
+  }
+}

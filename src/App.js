@@ -5,7 +5,7 @@ import Dashboard from './components/Dashboard';
 import HabitacionList from './components/Habitaciones/HabitacionList';
 import HabitacionForm from './components/Habitaciones/HabitacionForm';
 import ReservaList from './components/Reservas/ReservaList';
-import ReservaForm from './components/Reservas/ReservaForm';
+import ReservaForm from './components/Reservas/ReservasForm';
 import CheckoutList from './components/Clientes/CheckoutList';
 import ClientesMenu from './components/Clientes/ClientesMenu';
 import RegistroClientes from './components/Clientes/RegistroClientes';

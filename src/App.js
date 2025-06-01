@@ -10,6 +10,7 @@ import CheckoutList from './components/Clientes/CheckoutList';
 import ClientesMenu from './components/Clientes/ClientesMenu';
 import RegistroClientes from './components/Clientes/RegistroClientes';
 import Navbar from './components/Navbar'; // Import the Navbar component
+
 import './App.css';
 
 function App() {
@@ -65,6 +66,8 @@ function App() {
                 <RegistroClientes />
               </PrivateRoute>
             } />
+
+
             <Route path="/clientes/checkout" element={
               <PrivateRoute>
                 <CheckoutList />

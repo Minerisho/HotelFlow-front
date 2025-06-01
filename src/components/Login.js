@@ -5,8 +5,8 @@ import './Login.css';
 
 const Login = () => {
   const [credentials, setCredentials] = useState({
-    correoElectronico: '',
-    contrasena: ''
+    username: '',
+    password: ''
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -28,11 +28,21 @@ const Login = () => {
     setSuccess(false);
 
     try {
-      const loginResponse = await axios.post('http://localhost:8094/api/login/ingresar', credentials);
+      console.log('Credenciales enviadas:', credentials);
+
+      const loginResponse = await axios.post(
+  'http://localhost:8094/api/login/ingresar',
+  credentials,
+  {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }
+);
+
       
       if (loginResponse.status === 200) {
         localStorage.setItem('user', JSON.stringify(loginResponse.data));
-        
         setSuccess(true);
         setTimeout(() => {
           setSuccess(false);
@@ -42,7 +52,7 @@ const Login = () => {
     } catch (error) {
       console.error('Error during login:', error);
       if (error.response && error.response.status === 401) {
-        setError('Credenciales inválidas. Por favor, verifica tu correo y contraseña.');
+        setError('Credenciales inválidas. Por favor, verifica tu usuario y contraseña.');
       } else {
         setError('Error al conectar con el servidor. Inténtalo más tarde.');
       }
@@ -57,24 +67,24 @@ const Login = () => {
         <h2>HotelFlow - Acceso al Sistema</h2>
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
-            <label htmlFor="correoElectronico">Correo Electrónico</label>
+            <label htmlFor="username">Usuario</label>
             <input
-              type="email"
-              id="correoElectronico"
-              name="correoElectronico"
-              value={credentials.correoElectronico}
+              type="text"
+              id="username"
+              name="username"
+              value={credentials.username}
               onChange={handleChange}
               required
-              placeholder="Ingrese su correo electrónico"
+              placeholder="Ingrese su usuario"
             />
           </div>
           <div className="form-group">
-            <label htmlFor="contrasena">Contraseña</label>
+            <label htmlFor="password">Contraseña</label>
             <input
               type="password"
-              id="contrasena"
-              name="contrasena"
-              value={credentials.contrasena}
+              id="password"
+              name="password"
+              value={credentials.password}
               onChange={handleChange}
               required
               placeholder="Ingrese su contraseña"

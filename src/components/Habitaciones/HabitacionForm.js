@@ -1,58 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Habitaciones.css';
 
 const HabitacionForm = () => {
-  const { id } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  
-  const [habitacion, setHabitacion] = useState({
-    numero: '',
-    tipo: 'INDIVIDUAL',
-    capacidad: 1,
-    tarifaBase: '',
-    estado: 'DISPONIBLE',
-    descripcion: ''
+
+  const [form, setForm] = useState({
+    numeroHabitacion: '',
+    tipo: 'SOLA', // SOLA, DOBLE, MATRIMONIAL
+    climatizacion: 'AIRE_ACONDICIONADO', // AIRE_ACONDICIONADO, VENTILADOR
+    estado: 'LIBRE', // LIBRE, OCUPADO, LIMPIEZA
+    disponible: true,
+    precio: ''
   });
 
-  const isEditing = id !== undefined;
-
-  useEffect(() => {
-    if (isEditing) {
-      fetchHabitacion();
-    }
-  }, [id]);
-
-  const fetchHabitacion = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get(`http://localhost:8094/api/habitaciones/${id}`);
-      setHabitacion(response.data);
-    } catch (err) {
-      console.error('Error al cargar la habitación:', err);
-      setError('Error al cargar los datos de la habitación.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setHabitacion({
-      ...habitacion,
-      [name]: value
-    });
-  };
-
-  const handleNumberChange = (e) => {
-    const { name, value } = e.target;
-    setHabitacion({
-      ...habitacion,
-      [name]: name === 'tarifaBase' ? parseFloat(value) : parseInt(value, 10)
+    const { name, value, type, checked } = e.target;
+    setForm({
+      ...form,
+      [name]: type === 'checkbox' ? checked : value
     });
   };
 
@@ -63,145 +33,104 @@ const HabitacionForm = () => {
     setSuccess('');
 
     try {
-      if (isEditing) {
-        // Actualizar habitación existente
-        await axios.put(`http://localhost:8094/api/habitaciones/${id}`, habitacion);
-        setSuccess('Habitación actualizada correctamente');
-      } else {
-        // Crear nueva habitación
-        await axios.post('http://localhost:8094/api/habitaciones', habitacion);
-        setSuccess('Habitación creada correctamente');
-        setHabitacion({
-          numero: '',
-          tipo: 'INDIVIDUAL',
-          capacidad: 1,
-          tarifaBase: 0,
-          estado: 'DISPONIBLE',
-          descripcion: ''
-        });
-      }
-      
-      // Redirigir después de un breve retraso para que el usuario vea el mensaje
-      setTimeout(() => navigate('/habitaciones'), 2000);
+      const payload = {
+        numeroHabitacion: parseInt(form.numeroHabitacion),
+        tipo: form.tipo,
+        climatizacion: form.climatizacion,
+        estado: form.estado,
+        disponible: form.disponible,
+        precio: parseFloat(form.precio)
+      };
+
+      await axios.post('http://localhost:8094/api/habitaciones', payload);
+      setSuccess('Habitación creada correctamente');
+
+      setTimeout(() => {
+        navigate('/habitaciones');
+      }, 2000);
     } catch (err) {
       console.error('Error al guardar la habitación:', err);
-      if (err.response && err.response.data) {
-        setError(`Error: ${err.response.data}`);
-      } else {
-        setError('Error al guardar la habitación. Por favor, inténtalo de nuevo.');
-      }
+      setError('Error al guardar la habitación. Verifica los datos e inténtalo de nuevo.');
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading && isEditing) return <div className="loading">Cargando datos de la habitación...</div>;
-
   return (
     <div className="habitacion-form-container">
-      <h2>{isEditing ? 'Editar Habitación' : 'Nueva Habitación'}</h2>
-      
+      <h2>Nueva Habitación</h2>
+
       {error && <div className="error-message">{error}</div>}
       {success && <div className="success-message">{success}</div>}
-      
+
       <form onSubmit={handleSubmit} className="habitacion-form">
         <div className="form-group">
-          <label htmlFor="numero">Número de Habitación</label>
+          <label htmlFor="numeroHabitacion">Número de Habitación</label>
           <input
-            type="text"
-            id="numero"
-            name="numero"
-            value={habitacion.numero}
+            type="number"
+            id="numeroHabitacion"
+            name="numeroHabitacion"
+            value={form.numeroHabitacion}
             onChange={handleChange}
             required
-            placeholder="Ej. 101"
           />
         </div>
-        
+
         <div className="form-group">
           <label htmlFor="tipo">Tipo de Habitación</label>
-          <select
-            id="tipo"
-            name="tipo"
-            value={habitacion.tipo}
-            onChange={handleChange}
-            required
-          >
-            <option value="INDIVIDUAL">Individual</option>
+          <select name="tipo" value={form.tipo} onChange={handleChange} required>
+            <option value="SOLA">Sola</option>
             <option value="DOBLE">Doble</option>
             <option value="MATRIMONIAL">Matrimonial</option>
-            <option value="SUITE">Suite</option>
           </select>
         </div>
-        
+
         <div className="form-group">
-          <label htmlFor="capacidad">Capacidad</label>
-          <input
-            type="number"
-            id="capacidad"
-            name="capacidad"
-            value={habitacion.capacidad}
-            onChange={handleNumberChange}
-            required
-            min="1"
-          />
+          <label htmlFor="climatizacion">Climatización</label>
+          <select name="climatizacion" value={form.climatizacion} onChange={handleChange} required>
+            <option value="AIRE_ACONDICIONADO">Aire Acondicionado</option>
+            <option value="VENTILADOR">Ventilador</option>
+          </select>
         </div>
-        
-        <div className="form-group">
-          <label htmlFor="tarifaBase">Tarifa Base</label>
-          <input
-            type="number"
-            id="tarifaBase"
-            name="tarifaBase"
-            value={habitacion.tarifaBase}
-            onChange={handleNumberChange}
-            required
-            min="0"
-            step="0.01"
-          />
-        </div>
-        
+
         <div className="form-group">
           <label htmlFor="estado">Estado</label>
-          <select
-            id="estado"
-            name="estado"
-            value={habitacion.estado}
-            onChange={handleChange}
-            required
-          >
-            <option value="DISPONIBLE">Disponible</option>
-            <option value="OCUPADA">Ocupada</option>
-            <option value="EN_LIMPIEZA">En Limpieza</option>
-            <option value="MANTENIMIENTO">Mantenimiento</option>
+          <select name="estado" value={form.estado} onChange={handleChange} required>
+            <option value="LIBRE">Libre</option>
+            <option value="OCUPADO">Ocupado</option>
+            <option value="LIMPIEZA">Limpieza</option>
           </select>
         </div>
-        
+
         <div className="form-group">
-          <label htmlFor="descripcion">Descripción</label>
-          <textarea
-            id="descripcion"
-            name="descripcion"
-            value={habitacion.descripcion || ''}
+          <label htmlFor="precio">Precio</label>
+          <input
+            type="number"
+            name="precio"
+            value={form.precio}
             onChange={handleChange}
-            rows="4"
-            placeholder="Descripción de la habitación"
+            step="0.01"
+            required
           />
         </div>
-        
+
+        <div className="form-group">
+          <label>
+            <input
+              type="checkbox"
+              name="disponible"
+              checked={form.disponible}
+              onChange={handleChange}
+            />
+            Disponible
+          </label>
+        </div>
+
         <div className="form-actions">
-          <button 
-            type="submit" 
-            className="btn-guardar" 
-            disabled={loading}
-          >
+          <button type="submit" className="btn-guardar" disabled={loading}>
             {loading ? 'Guardando...' : 'Guardar'}
           </button>
-          <button 
-            type="button" 
-            className="btn-cancelar" 
-            onClick={() => navigate('/habitaciones')}
-          >
+          <button type="button" className="btn-cancelar" onClick={() => navigate('/habitaciones')}>
             Cancelar
           </button>
         </div>

@@ -1,20 +1,18 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import './ClientesMenu.css';
+import { Link } from 'react-router-dom';
+import './ClientesMenu.css'; // Usamos el CSS ajustado abajo
 
 const ClientesMenu = () => {
-  const navigate = useNavigate();
-
   return (
-    <div className="clientes-menu">
-      <h2>GestiÃ³n de Clientes</h2>
-      <div className="menu-opciones">
-        <button onClick={() => navigate('/clientes/registro-clientes')} className="btn-opcion">
+    <div className="clientes-menu-container">
+      <h2 className="clientes-menu-title">Gestión de Clientes</h2>
+      <div className="clientes-menu-button-container">
+        <Link to="/clientes/registro" className="clientes-btn-link btn-azul">
           Registrar Cliente
-        </button>
-        <button onClick={() => navigate('/clientes/checkout')} className="btn-opcion">
+        </Link>
+        <Link to="/clientes/checkout" className="clientes-btn-link btn-amarillo">
           Hacer Check-out
-        </button>
+        </Link>
       </div>
     </div>
   );

@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import './Habitaciones.css';
 
-
 const HabitacionList = () => {
   const [habitaciones, setHabitaciones] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,6 +13,9 @@ const HabitacionList = () => {
     capacidad: '',
     tarifaMaxima: ''
   });
+
+  const user = JSON.parse(localStorage.getItem('user'));
+  const rol = user?.rol?.nombreRol || ''; // Ajusta según tu estructura
 
   useEffect(() => {
     fetchHabitaciones();
@@ -45,8 +47,7 @@ const HabitacionList = () => {
     try {
       setLoading(true);
       let url = 'http://localhost:8094/api/habitaciones';
-      
-      // Añadir filtros si están presentes
+
       if (filtro.estado && filtro.tipo) {
         url = `${url}/filtrar?estado=${filtro.estado}&tipo=${filtro.tipo}`;
       } else if (filtro.estado) {
@@ -58,7 +59,7 @@ const HabitacionList = () => {
       } else if (filtro.tarifaMaxima) {
         url = `${url}/tarifa/${filtro.tarifaMaxima}`;
       }
-      
+
       const response = await axios.get(url);
       setHabitaciones(response.data);
     } catch (err) {
@@ -94,7 +95,6 @@ const HabitacionList = () => {
   const cambiarEstado = async (id, nuevoEstado) => {
     try {
       await axios.patch(`http://localhost:8094/api/habitaciones/${id}/estado`, { estado: nuevoEstado });
-      // Actualizar el estado en la lista local
       setHabitaciones(habitaciones.map(habitacion =>
         habitacion.idHabitacion === id
           ? { ...habitacion, estado: nuevoEstado }
@@ -121,7 +121,7 @@ const HabitacionList = () => {
   return (
     <div className="habitaciones-container">
       <h2>Gestión de Habitaciones</h2>
-      
+
       <div className="actions-bar">
         <Link to="/habitaciones/nueva" className="btn-crear">Nueva Habitación</Link>
       </div>
@@ -143,7 +143,7 @@ const HabitacionList = () => {
               <option value="MANTENIMIENTO">Mantenimiento</option>
             </select>
           </div>
-          
+
           <div className="filtro-grupo">
             <label>Tipo:</label>
             <select 
@@ -158,7 +158,7 @@ const HabitacionList = () => {
               <option value="SUITE">Suite</option>
             </select>
           </div>
-          
+
           <div className="filtro-grupo">
             <label>Capacidad mínima:</label>
             <input 
@@ -169,7 +169,7 @@ const HabitacionList = () => {
               min="1"
             />
           </div>
-          
+
           <div className="filtro-grupo">
             <label>Tarifa máxima:</label>
             <input 
@@ -181,7 +181,7 @@ const HabitacionList = () => {
               step="0.01"
             />
           </div>
-          
+
           <div className="filtro-acciones">
             <button onClick={aplicarFiltros} className="btn-aplicar">Aplicar Filtros</button>
             <button onClick={resetFiltros} className="btn-reset">Limpiar</button>
@@ -198,21 +198,21 @@ const HabitacionList = () => {
           {habitaciones.map(habitacion => (
             <div key={habitacion.idHabitacion} className="habitacion-card">
               <div className="habitacion-header">
-                <h3>Habitación {habitacion.numero}</h3>
+                <h3>Habitación {habitacion.numeroHabitacion}</h3> {/* <- CAMBIO AQUI */}
                 <span className={`estado-badge ${getEstadoClass(habitacion.estado)}`}>
                   {habitacion.estado}
                 </span>
               </div>
-              
+
               <div className="habitacion-info">
                 <p><strong>Tipo:</strong> {habitacion.tipo}</p>
-                <p><strong>Capacidad:</strong> {habitacion.capacidad} personas</p>
+                <p><strong>Estado:</strong> {habitacion.estado}</p>
                 <p><strong>Tarifa:</strong> ${habitacion.tarifaBase}</p>
                 {habitacion.descripcion && (
                   <p className="descripcion"><strong>Descripción:</strong> {habitacion.descripcion}</p>
                 )}
               </div>
-              
+
               <div className="habitacion-acciones">
                 <Link to={`/habitaciones/editar/${habitacion.idHabitacion}`} className="btn-editar">
                   Editar
@@ -224,7 +224,7 @@ const HabitacionList = () => {
                   Eliminar
                 </button>
               </div>
-            
+
             </div>
           ))}
         </div>

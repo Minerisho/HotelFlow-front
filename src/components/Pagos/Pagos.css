@@ -1,0 +1,84 @@
+/* src/components/Pagos/Pagos.css */
+.pagos-container,
+.pago-form-container {
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.pagos-container h2,
+.pago-form-container h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.pago-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.pago-card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.pago-card h3 {
+  margin-top: 0;
+  color: #28a745;
+}
+
+.pago-info p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.pago-acciones {
+  margin-top: 10px;
+  text-align: right;
+}
+
+.btn-anular-pago {
+  background-color: #dc3545;
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.btn-anular-pago:hover {
+  background-color: #c82333;
+}
+
+/* Formulario Pago */
+.pago-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.pago-form .form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.pago-form label {
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.pago-form input[type="number"],
+.pago-form input[type="date"],
+.pago-form input[type="text"], /* Para numeroHabitacion */
+.pago-form select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}

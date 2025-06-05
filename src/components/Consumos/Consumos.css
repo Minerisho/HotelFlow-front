@@ -1,0 +1,119 @@
+/* src/components/Consumos/Consumos.css */
+.consumos-container,
+.consumo-form-container {
+  max-width: 1100px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.consumos-container h2,
+.consumo-form-container h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.consumo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.consumo-card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.consumo-card h3 {
+  margin-top: 0;
+  color: #343a40;
+  font-size: 1.1em;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+}
+
+.consumo-info p {
+  margin: 4px 0;
+  font-size: 0.9em;
+}
+.consumo-info strong {
+  color: #495057;
+}
+
+.consumo-acciones {
+  margin-top: 15px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.btn-cargar,
+.btn-eliminar-consumo {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.btn-cargar {
+  background-color: #17a2b8;
+  color: white;
+}
+.btn-cargar:hover {
+  background-color: #138496;
+}
+.btn-cargar:disabled {
+  background-color: #adb5bd;
+}
+
+.btn-eliminar-consumo {
+  background-color: #dc3545;
+  color: white;
+}
+.btn-eliminar-consumo:hover {
+  background-color: #c82333;
+}
+
+/* Formulario Consumo */
+.consumo-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.consumo-form .form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.consumo-form label {
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.consumo-form input[type="number"],
+.consumo-form input[type="date"],
+.consumo-form select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.consumo-form .checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: normal;
+}
+.consumo-form input[type="checkbox"] {
+  width: auto;
+  margin-right: 5px;
+}

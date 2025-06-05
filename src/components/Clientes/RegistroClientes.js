@@ -1,49 +1,37 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { clienteService } from '../../Services/api'; // Ajusta la ruta
 import './RegistroClientes.css';
 
 const RegistroClientes = () => {
   const navigate = useNavigate();
-  const [habitacionesDisponibles, setHabitacionesDisponibles] = useState([]);
+  const [mensaje, setMensaje] = useState({ text: "", type: "" });
+  const [loading, setLoading] = useState(false);
 
-  const [cliente, setCliente] = useState({
+  // Payload para POST /api/clientes según PDF (1.4.1), sin fechas ni habitación.
+  const initialFormState = {
     nombres: '',
     apellidos: '',
     cedula: '',
     nacionalidad: '',
-    fechaNacimiento: '',
-    genero: '',
+    fechaNacimiento: '', // API espera "YYYY-MM-DD"
+    genero: '', // API: MASCULINO, FEMENINO, OTRO
     profesion: '',
     procedencia: '',
     destino: '',
-    fechaLlegada: '',
-    fechaSalida: '',
     correo: '',
     telefonoEmergencia: '',
     eps: '',
-    numeroHabitacion: ''
-  });
+  };
+  const [cliente, setCliente] = useState(initialFormState);
+  const [tipoFechaNacimiento, setTipoFechaNacimiento] = useState('text');
 
-  const [tipoFecha, setTipoFecha] = useState({
-    nacimiento: 'text',
-    llegada: 'text',
-    salida: 'text'
-  });
 
-  useEffect(() => {
-    const obtenerHabitaciones = async () => {
-      try {
-        const response = await axios.get('http://localhost:8094/api/habitaciones?estado=LIBRE');;
-        setHabitacionesDisponibles(response.data);
-      } catch (error) {
-        console.error('Error al obtener habitaciones disponibles:', error);
-        alert('No se pudieron cargar las habitaciones disponibles.');
-      }
-    };
-
-    obtenerHabitaciones();
-  }, []);
+  // Ya no es necesario cargar habitaciones aquí si no se van a asociar directamente.
+  // useEffect(() => {
+  //   const obtenerHabitaciones = async () => { ... };
+  //   obtenerHabitaciones();
+  // }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -51,59 +39,71 @@ const RegistroClientes = () => {
   };
 
   const limpiarFormulario = () => {
-    setCliente({
-      nombres: '',
-      apellidos: '',
-      cedula: '',
-      nacionalidad: '',
-      fechaNacimiento: '',
-      genero: '',
-      profesion: '',
-      procedencia: '',
-      destino: '',
-      fechaLlegada: '',
-      fechaSalida: '',
-      correo: '',
-      telefonoEmergencia: '',
-      eps: '',
-      numeroHabitacion: ''
-    });
-
-    setTipoFecha({
-      nacimiento: 'text',
-      llegada: 'text',
-      salida: 'text'
-    });
+    setCliente(initialFormState);
+    setTipoFechaNacimiento('text');
+    setMensaje({ text: "", type: "" });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setMensaje({ text: "", type: "" });
+
+    // Validaciones básicas
+    if (!cliente.nombres || !cliente.apellidos || !cliente.cedula || !cliente.genero) {
+        setMensaje({text: 'Nombres, apellidos, cédula y género son obligatorios.', type: 'error'});
+        setLoading(false);
+        return;
+    }
+
+    // Payload para el backend. Los campos opcionales se envían como null si están vacíos.
+    const clientePayload = {
+      nombres: cliente.nombres,
+      apellidos: cliente.apellidos,
+      cedula: cliente.cedula,
+      nacionalidad: cliente.nacionalidad || null,
+      fechaNacimiento: cliente.fechaNacimiento || null,
+      genero: cliente.genero,
+      profesion: cliente.profesion || null,
+      procedencia: cliente.procedencia || null,
+      destino: cliente.destino || null,
+      correo: cliente.correo || null,
+      telefonoEmergencia: cliente.telefonoEmergencia || null,
+      eps: cliente.eps || null,
+    };
 
     try {
-      const response = await axios.post('http://localhost:8094/api/clientes', {
-        ...cliente,
-        habitacion: { numeroHabitacion: cliente.numeroHabitacion }
-      });
-
-      if (response.status === 201 || response.status === 200) {
-        const deseaOtro = window.confirm('Cliente registrado correctamente. ¿Desea registrar otro cliente?');
-        if (deseaOtro) {
-          limpiarFormulario();
-        } else {
-          navigate('/dashboard');
-        }
+      await clienteService.create(clientePayload); //
+      setMensaje({ text: 'Cliente registrado correctamente.', type: 'success' });
+      const deseaOtro = window.confirm('Cliente registrado correctamente. ¿Desea registrar otro cliente?');
+      if (deseaOtro) {
+        limpiarFormulario();
       } else {
-        alert('Error al registrar cliente.');
+        navigate('/clientes'); // O /dashboard o donde prefieras
       }
     } catch (error) {
       console.error('Error al registrar cliente:', error);
-      alert('Error al registrar cliente. Ver consola para más información.');
+      let apiError = 'Error al registrar el cliente. Inténtelo de nuevo.';
+      if (error.response) {
+          // PDF (1.4.1) menciona 409 Conflict (cédula ya existe)
+        if (error.response.status === 409) {
+          apiError = 'La cédula ingresada ya se encuentra registrada.';
+        } else if (error.response.data?.message) {
+          apiError = error.response.data.message;
+        } else if (typeof error.response.data === 'string') {
+          apiError = error.response.data;
+        }
+      }
+      setMensaje({ text: apiError, type: 'error' });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="registro-clientes-container">
       <h2>Registro de Cliente</h2>
+      {mensaje.text && <p className={`mensaje ${mensaje.type}`}>{mensaje.text}</p>}
       <form onSubmit={handleSubmit} className="registro-form">
         <input type="text" name="nombres" placeholder="Nombres" value={cliente.nombres} onChange={handleChange} required />
         <input type="text" name="apellidos" placeholder="Apellidos" value={cliente.apellidos} onChange={handleChange} required />
@@ -111,19 +111,16 @@ const RegistroClientes = () => {
         <input type="text" name="nacionalidad" placeholder="Nacionalidad" value={cliente.nacionalidad} onChange={handleChange} />
 
         <input
-          type={tipoFecha.nacimiento}
+          type={tipoFechaNacimiento}
           name="fechaNacimiento"
-          placeholder="Fecha de Nacimiento"
+          placeholder="Fecha de Nacimiento (YYYY-MM-DD)"
           value={cliente.fechaNacimiento}
           onChange={handleChange}
-          onFocus={() => setTipoFecha(prev => ({ ...prev, nacimiento: 'date' }))}
-          onBlur={(e) => {
-            if (!e.target.value) {
-              setTipoFecha(prev => ({ ...prev, nacimiento: 'text' }));
-            }
-          }}
+          onFocus={() => setTipoFechaNacimiento('date')}
+          onBlur={(e) => !e.target.value && setTipoFechaNacimiento('text')}
         />
 
+        {/* Valores genero: MASCULINO, FEMENINO, OTRO (PDF 1.4.1) */}
         <select name="genero" value={cliente.genero} onChange={handleChange} required>
           <option value="">Selecciona género</option>
           <option value="MASCULINO">Masculino</option>
@@ -134,51 +131,15 @@ const RegistroClientes = () => {
         <input type="text" name="profesion" placeholder="Profesión" value={cliente.profesion} onChange={handleChange} />
         <input type="text" name="procedencia" placeholder="Procedencia" value={cliente.procedencia} onChange={handleChange} />
         <input type="text" name="destino" placeholder="Destino" value={cliente.destino} onChange={handleChange} />
-
-        <input
-          type={tipoFecha.llegada}
-          name="fechaLlegada"
-          placeholder="Fecha de Llegada"
-          value={cliente.fechaLlegada}
-          onChange={handleChange}
-          onFocus={() => setTipoFecha(prev => ({ ...prev, llegada: 'date' }))}
-          onBlur={(e) => {
-            if (!e.target.value) {
-              setTipoFecha(prev => ({ ...prev, llegada: 'text' }));
-            }
-          }}
-        />
-
-        <input
-          type={tipoFecha.salida}
-          name="fechaSalida"
-          placeholder="Fecha de Salida"
-          value={cliente.fechaSalida}
-          onChange={handleChange}
-          onFocus={() => setTipoFecha(prev => ({ ...prev, salida: 'date' }))}
-          onBlur={(e) => {
-            if (!e.target.value) {
-              setTipoFecha(prev => ({ ...prev, salida: 'text' }));
-            }
-          }}
-        />
-
-        <input type="email" name="correo" placeholder="Correo" value={cliente.correo} onChange={handleChange} />
+        <input type="email" name="correo" placeholder="Correo Electrónico" value={cliente.correo} onChange={handleChange} />
         <input type="text" name="telefonoEmergencia" placeholder="Tel. Emergencia" value={cliente.telefonoEmergencia} onChange={handleChange} />
         <input type="text" name="eps" placeholder="EPS" value={cliente.eps} onChange={handleChange} />
 
-        <select name="numeroHabitacion" value={cliente.numeroHabitacion} onChange={handleChange} required>
-          <option value="">Seleccione una habitación</option>
-          {Array.isArray(habitacionesDisponibles) &&
-            habitacionesDisponibles.map((hab) => (
-              <option key={hab.numeroHabitacion} value={hab.numeroHabitacion}>
-                Habitación {hab.numeroHabitacion} - {hab.tipo} ({hab.estado})
-              </option>
-            ))
-          }
-        </select>
+        {/* Campos de fechaLlegada, fechaSalida y numeroHabitacion eliminados del formulario */}
 
-        <button type="submit" className="registro-boton">Registrar Cliente</button>
+        <button type="submit" className="registro-boton" disabled={loading}>
+          {loading ? 'Registrando...' : 'Registrar Cliente'}
+        </button>
       </form>
     </div>
   );

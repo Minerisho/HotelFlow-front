@@ -1,25 +1,30 @@
-import React from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { authService } from '../Services/api'; // Corregido: un solo ../ para salir de /components a /src
 import './Navbar.css';
 
 const Navbar = () => {
   const navigate = useNavigate();
-  
+  const location = useLocation();
+  const [currentUser, setCurrentUser] = useState(null);
 
-  const userString = localStorage.getItem('user');
-  const user = userString ? JSON.parse(userString) : null;
-  
+  useEffect(() => {
+    const user = authService.getCurrentUser();
+    setCurrentUser(user);
+  }, [location]);
+
   const handleLogout = () => {
-    // Clear user data from localStorage
-    localStorage.removeItem('user');
-    // Redirect to login page
+    authService.logout();
+    setCurrentUser(null);
     navigate('/login');
   };
 
-
-  if (!user) {
+  if (location.pathname === '/login' || !currentUser) {
     return null;
   }
+
+  const displayName = currentUser.nombre ? `${currentUser.nombre} ${currentUser.apellido || ''}`.trim() : currentUser.username;
+  const displayRole = currentUser.rol || 'Usuario'; //
 
   return (
     <nav className="navbar">
@@ -27,7 +32,7 @@ const Navbar = () => {
         <div className="navbar-brand">
           <Link to="/dashboard">HotelFlow</Link>
         </div>
-        
+
         <ul className="navbar-menu">
           <li className="navbar-item">
             <Link to="/dashboard">Dashboard</Link>
@@ -41,12 +46,31 @@ const Navbar = () => {
           <li className="navbar-item">
             <Link to="/clientes">Clientes</Link>
           </li>
+          {/* Nuevos enlaces */}
+          <li className="navbar-item">
+            <Link to="/consumos">Consumos</Link>
+          </li>
+          <li className="navbar-item">
+            <Link to="/pagos">Pagos</Link>
+          </li>
+
+          {/* Enlaces condicionales para ADMIN */}
+          {displayRole === 'ADMIN' && (
+            <>
+              <li className="navbar-item">
+                <Link to="/inventario">Inventario</Link>
+              </li>
+              <li className="navbar-item">
+                <Link to="/usuarios">Usuarios</Link> {/* Asumiendo que crearás este módulo */}
+              </li>
+            </>
+          )}
         </ul>
-        
+
         <div className="navbar-user">
           <span className="user-info">
-            <span className="user-name">{user.nombre || user.username}</span>
-            <span className="user-role">({user.tipoUsuario})</span>
+            <span className="user-name">{displayName}</span>
+            <span className="user-role">({displayRole})</span>
           </span>
           <button className="logout-btn" onClick={handleLogout}>
             Cerrar Sesión

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import './Login.css';
+import { authService } from '../Services/api'; // Asegúrate que la ruta sea correcta
+import './Login.css'; //
 
 const Login = () => {
   const [credentials, setCredentials] = useState({
     username: '',
-    password: ''
+    contrasena: '' // Cambiado de 'password' a 'contrasena' para coincidir con el PDF
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -27,34 +27,41 @@ const Login = () => {
     setError('');
     setSuccess(false);
 
-    try {
-      console.log('Credenciales enviadas:', credentials);
-
-      const loginResponse = await axios.post(
-  'http://localhost:8094/api/login/ingresar',
-  credentials,
-  {
-    headers: {
-      'Content-Type': 'application/json'
+    // Validar que los campos no estén vacíos aquí si se desea,
+    // aunque el backend también debería validarlo.
+    if (!credentials.username || !credentials.contrasena) {
+      setError('El usuario y la contraseña son obligatorios.');
+      setLoading(false);
+      return;
     }
-  }
-);
 
-      
-      if (loginResponse.status === 200) {
-        localStorage.setItem('user', JSON.stringify(loginResponse.data));
+    try {
+      // authService.login ahora maneja el almacenamiento del usuario en localStorage
+      const userData = await authService.login(credentials);
+
+      if (userData) { // Si userData no es null o undefined (login exitoso)
         setSuccess(true);
+        // Esperar un corto tiempo para mostrar el mensaje de éxito antes de redirigir
         setTimeout(() => {
-          setSuccess(false);
           navigate('/dashboard');
-        }, 3000);
-      }
-    } catch (error) {
-      console.error('Error during login:', error);
-      if (error.response && error.response.status === 401) {
-        setError('Credenciales inválidas. Por favor, verifica tu usuario y contraseña.');
+        }, 1500); // Redirige después de 1.5 segundos
       } else {
-        setError('Error al conectar con el servidor. Inténtalo más tarde.');
+        // Esto no debería ocurrir si authService.login lanza un error en caso de fallo,
+        // pero es una salvaguarda.
+        setError('Respuesta inesperada del servidor.');
+      }
+    } catch (err) {
+      console.error('Error during login:', err);
+      if (err.response) {
+        if (err.response.status === 401) { //
+          setError('Credenciales inválidas. Por favor, verifica tu usuario y contraseña.');
+        } else if (err.response.status === 400) { //
+          setError('Solicitud incorrecta. Verifica los datos enviados.');
+        } else {
+          setError(`Error del servidor: ${err.response.status}. Inténtalo más tarde.`);
+        }
+      } else {
+        setError('Error de red o el servidor no responde. Inténtalo más tarde.');
       }
     } finally {
       setLoading(false);
@@ -71,7 +78,7 @@ const Login = () => {
             <input
               type="text"
               id="username"
-              name="username"
+              name="username" // Coincide con el estado y el JSON para la API
               value={credentials.username}
               onChange={handleChange}
               required
@@ -79,22 +86,22 @@ const Login = () => {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="password">Contraseña</label>
+            <label htmlFor="contrasena">Contraseña</label>
             <input
               type="password"
-              id="password"
-              name="password"
-              value={credentials.password}
+              id="contrasena"
+              name="contrasena" // Cambiado para coincidir con el JSON para la API
+              value={credentials.contrasena}
               onChange={handleChange}
               required
               placeholder="Ingrese su contraseña"
             />
           </div>
           {error && <div className="error-message">{error}</div>}
-          {success && <div className="success-message fade-in">Credenciales correctas</div>}
-          <button 
-            type="submit" 
-            className="login-button" 
+          {success && <div className="success-message">¡Inicio de sesión exitoso! Redirigiendo...</div>}
+          <button
+            type="submit"
+            className="login-button"
             disabled={loading}
           >
             {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}

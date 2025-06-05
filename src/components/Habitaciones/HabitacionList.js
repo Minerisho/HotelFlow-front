@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import { habitacionService } from '../../Services/api'; // Ajusta la ruta si es necesario
 import './Habitaciones.css';
 
 const HabitacionList = () => {
@@ -8,28 +8,36 @@ const HabitacionList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [filtro, setFiltro] = useState({
-    estado: '',
-    tipo: '',
-    capacidad: '',
-    tarifaMaxima: ''
+    estado: '', // LIBRE, OCUPADO, LIMPIEZA, MANTENIMIENTO (PDF usa LIBRE, OCUPADO, LIMPIEZA )
+    tipo: '',   // SOLA, DOBLE, MATRIMONIAL (PDF usa SOLA, DOBLE, MATRIMONIAL )
+    disponible: '', // true o false
+    precioMin: '',
+    precioMax: '',
   });
 
-  const user = JSON.parse(localStorage.getItem('user'));
-  const rol = user?.rol?.nombreRol || ''; // Ajusta según tu estructura
-
   useEffect(() => {
-    fetchHabitaciones();
-  }, []);
+    fetchHabitacionesConFiltros();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Carga inicial
 
-  const fetchHabitaciones = async () => {
+  const fetchHabitacionesConFiltros = async () => {
+    setLoading(true);
+    setError('');
     try {
-      setLoading(true);
-      const response = await axios.get('http://localhost:8094/api/habitaciones');
-      setHabitaciones(response.data);
-      setError('');
+      const paramsToApi = {};
+      if (filtro.estado) paramsToApi.estado = filtro.estado;
+      if (filtro.tipo) paramsToApi.tipo = filtro.tipo;
+      if (filtro.disponible !== '') paramsToApi.disponible = filtro.disponible === 'true'; // Convertir a booleano
+      if (filtro.precioMin) paramsToApi.precioMin = parseFloat(filtro.precioMin);
+      if (filtro.precioMax) paramsToApi.precioMax = parseFloat(filtro.precioMax);
+
+      // El PDF (1.3.2) indica que getAll puede recibir estos parámetros 
+      const response = await habitacionService.getAll(paramsToApi);
+      setHabitaciones(Array.isArray(response) ? response : []); // Asegurar que es un array
     } catch (err) {
       console.error('Error al cargar habitaciones:', err);
       setError('Error al cargar las habitaciones. Inténtalo de nuevo más tarde.');
+      setHabitaciones([]);
     } finally {
       setLoading(false);
     }
@@ -37,69 +45,57 @@ const HabitacionList = () => {
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    setFiltro({
-      ...filtro,
+    setFiltro(prevFiltro => ({
+      ...prevFiltro,
       [name]: value
-    });
+    }));
   };
 
-  const aplicarFiltros = async () => {
-    try {
-      setLoading(true);
-      let url = 'http://localhost:8094/api/habitaciones';
-
-      if (filtro.estado && filtro.tipo) {
-        url = `${url}/filtrar?estado=${filtro.estado}&tipo=${filtro.tipo}`;
-      } else if (filtro.estado) {
-        url = `${url}/estado/${filtro.estado}`;
-      } else if (filtro.tipo) {
-        url = `${url}/tipo/${filtro.tipo}`;
-      } else if (filtro.capacidad) {
-        url = `${url}/capacidad/${filtro.capacidad}`;
-      } else if (filtro.tarifaMaxima) {
-        url = `${url}/tarifa/${filtro.tarifaMaxima}`;
-      }
-
-      const response = await axios.get(url);
-      setHabitaciones(response.data);
-    } catch (err) {
-      console.error('Error al aplicar filtros:', err);
-      setError('Error al filtrar habitaciones.');
-    } finally {
-      setLoading(false);
-    }
+  const aplicarFiltros = () => {
+    fetchHabitacionesConFiltros();
   };
 
   const resetFiltros = () => {
     setFiltro({
       estado: '',
       tipo: '',
-      capacidad: '',
-      tarifaMaxima: ''
+      disponible: '',
+      precioMin: '',
+      precioMax: '',
     });
-    fetchHabitaciones();
+    // Es importante llamar a fetchHabitacionesConFiltros con los filtros reseteados
+    // para que se refleje inmediatamente en la UI.
+    // Considera si quieres que al resetear se fetcheen todas o esperar a "aplicar filtros".
+    // Por ahora, lo dejo para que se fetchee al resetear.
+    fetchHabitacionesConFiltros();
   };
 
-  const eliminarHabitacion = async (id) => {
+  const eliminarHabitacion = async (numeroHabitacion) => {
+    // El PDF (1.3.8) especifica DELETE /api/habitaciones/{numeroHabitacion} 
     if (window.confirm('¿Estás seguro de que deseas eliminar esta habitación?')) {
       try {
-        await axios.delete(`http://localhost:8094/api/habitaciones/${id}`);
-        setHabitaciones(habitaciones.filter(habitacion => habitacion.idHabitacion !== id));
+        await habitacionService.delete(numeroHabitacion);
+        setHabitaciones(prevHabitaciones =>
+          prevHabitaciones.filter(h => h.numeroHabitacion !== numeroHabitacion)
+        );
       } catch (err) {
         console.error('Error al eliminar la habitación:', err);
-        setError('Error al eliminar la habitación.');
+        // El PDF (1.3.8) menciona error 409 Conflict (reservas activas) 
+        setError(err.response?.data?.message || 'Error al eliminar la habitación. Verifique si tiene reservas activas.');
       }
     }
   };
 
-  const cambiarEstado = async (id, nuevoEstado) => {
+  const handleEstadoChange = async (numeroHabitacion, nuevoEstado) => {
+    // El PDF (1.3.6) especifica PATCH /api/habitaciones/{numeroHabitacion}/estado 
+    // con payload {"estado": "NUEVO_ESTADO"} 
     try {
-      await axios.patch(`http://localhost:8094/api/habitaciones/${id}/estado`, { estado: nuevoEstado });
-      setHabitaciones(habitaciones.map(habitacion =>
-        habitacion.idHabitacion === id
-          ? { ...habitacion, estado: nuevoEstado }
-          : habitacion
-      ));
+      const response = await habitacionService.updateEstado(numeroHabitacion, { estado: nuevoEstado });
+      setHabitaciones(prevHabitaciones =>
+        prevHabitaciones.map(h =>
+          h.numeroHabitacion === numeroHabitacion ? { ...h, ...response } : h // Actualizar con la respuesta completa
+        )
+      );
     } catch (err) {
       console.error('Error al cambiar el estado:', err);
       setError('Error al cambiar el estado de la habitación.');
@@ -107,16 +103,15 @@ const HabitacionList = () => {
   };
 
   const getEstadoClass = (estado) => {
-    switch (estado) {
-      case 'DISPONIBLE': return 'estado-disponible';
-      case 'OCUPADA': return 'estado-ocupada';
-      case 'EN_LIMPIEZA': return 'estado-limpieza';
-      case 'MANTENIMIENTO': return 'estado-mantenimiento';
-      default: return '';
+    if (!estado) return '';
+    switch (estado.toUpperCase()) {
+      case 'LIBRE': return 'estado-disponible'; // 
+      case 'OCUPADO': return 'estado-ocupada';  // 
+      case 'LIMPIEZA': return 'estado-limpieza'; // 
+      case 'MANTENIMIENTO': return 'estado-mantenimiento'; // Asumido, aunque no en POST, es un estado común
+      default: return 'estado-desconocido';
     }
   };
-
-  if (loading && habitaciones.length === 0) return <div className="loading">Cargando habitaciones...</div>;
 
   return (
     <div className="habitaciones-container">
@@ -130,56 +125,44 @@ const HabitacionList = () => {
         <h3>Filtros</h3>
         <div className="filtros-form">
           <div className="filtro-grupo">
-            <label>Estado:</label>
-            <select 
-              name="estado" 
-              value={filtro.estado} 
-              onChange={handleFilterChange}
-            >
+            <label htmlFor="estadoFiltro">Estado:</label>
+            <select id="estadoFiltro" name="estado" value={filtro.estado} onChange={handleFilterChange}>
               <option value="">Todos</option>
-              <option value="DISPONIBLE">Disponible</option>
-              <option value="OCUPADA">Ocupada</option>
-              <option value="EN_LIMPIEZA">En Limpieza</option>
+              <option value="LIBRE">Libre</option> {/*  */}
+              <option value="OCUPADO">Ocupado</option> {/*  */}
+              <option value="LIMPIEZA">Limpieza</option> {/*  */}
+              {/* MANTENIMIENTO es un estado lógico, no listado en POST pero plausible para GET */}
               <option value="MANTENIMIENTO">Mantenimiento</option>
             </select>
           </div>
 
           <div className="filtro-grupo">
-            <label>Tipo:</label>
-            <select 
-              name="tipo" 
-              value={filtro.tipo} 
-              onChange={handleFilterChange}
-            >
+            <label htmlFor="tipoFiltro">Tipo:</label>
+            <select id="tipoFiltro" name="tipo" value={filtro.tipo} onChange={handleFilterChange} >
               <option value="">Todos</option>
-              <option value="INDIVIDUAL">Individual</option>
-              <option value="DOBLE">Doble</option>
-              <option value="MATRIMONIAL">Matrimonial</option>
-              <option value="SUITE">Suite</option>
+              <option value="SOLA">Sola</option> {/*  */}
+              <option value="DOBLE">Doble</option> {/*  */}
+              <option value="MATRIMONIAL">Matrimonial</option> {/*  */}
             </select>
           </div>
 
           <div className="filtro-grupo">
-            <label>Capacidad mínima:</label>
-            <input 
-              type="number" 
-              name="capacidad" 
-              value={filtro.capacidad} 
-              onChange={handleFilterChange} 
-              min="1"
-            />
+            <label htmlFor="disponibleFiltro">Disponible:</label>
+            <select id="disponibleFiltro" name="disponible" value={filtro.disponible} onChange={handleFilterChange} >
+              <option value="">Todos</option>
+              <option value="true">Sí</option>
+              <option value="false">No</option>
+            </select>
           </div>
 
           <div className="filtro-grupo">
-            <label>Tarifa máxima:</label>
-            <input 
-              type="number" 
-              name="tarifaMaxima" 
-              value={filtro.tarifaMaxima} 
-              onChange={handleFilterChange} 
-              min="0"
-              step="0.01"
-            />
+            <label htmlFor="precioMinFiltro">Precio Mín.:</label>
+            <input type="number" id="precioMinFiltro" name="precioMin" value={filtro.precioMin} onChange={handleFilterChange} placeholder="Ej: 50000" />
+          </div>
+
+          <div className="filtro-grupo">
+            <label htmlFor="precioMaxFiltro">Precio Máx.:</label>
+            <input type="number" id="precioMaxFiltro" name="precioMax" value={filtro.precioMax} onChange={handleFilterChange} placeholder="Ej: 200000" />
           </div>
 
           <div className="filtro-acciones">
@@ -189,42 +172,56 @@ const HabitacionList = () => {
         </div>
       </div>
 
+      {loading && <div className="loading">Cargando habitaciones...</div>}
       {error && <div className="error-message">{error}</div>}
 
-      {habitaciones.length === 0 ? (
+      {!loading && habitaciones.length === 0 && !error && (
         <div className="no-results">No hay habitaciones que coincidan con los criterios de búsqueda.</div>
-      ) : (
+      )}
+
+      {!loading && habitaciones.length > 0 && (
         <div className="habitaciones-grid">
           {habitaciones.map(habitacion => (
-            <div key={habitacion.idHabitacion} className="habitacion-card">
+            // HabitacionDTO: numeroHabitacion, tipo, climatizacion, estado, disponible, precio 
+            <div key={habitacion.numeroHabitacion} className="habitacion-card">
               <div className="habitacion-header">
-                <h3>Habitación {habitacion.numeroHabitacion}</h3> {/* <- CAMBIO AQUI */}
+                <h3>Habitación {habitacion.numeroHabitacion}</h3>
                 <span className={`estado-badge ${getEstadoClass(habitacion.estado)}`}>
-                  {habitacion.estado}
+                  {habitacion.estado ? habitacion.estado.replace('_', ' ') : 'N/A'}
                 </span>
               </div>
 
               <div className="habitacion-info">
-                <p><strong>Tipo:</strong> {habitacion.tipo}</p>
-                <p><strong>Estado:</strong> {habitacion.estado}</p>
-                <p><strong>Tarifa:</strong> ${habitacion.tarifaBase}</p>
-                {habitacion.descripcion && (
-                  <p className="descripcion"><strong>Descripción:</strong> {habitacion.descripcion}</p>
-                )}
+                <p><strong>Tipo:</strong> {habitacion.tipo || 'N/A'}</p>
+                <p><strong>Climatización:</strong> {habitacion.climatizacion ? habitacion.climatizacion.replace('_', ' ') : 'N/A'}</p>
+                <p><strong>Precio:</strong> ${typeof habitacion.precio === 'number' ? habitacion.precio.toFixed(2) : 'N/A'}</p>
+                <p><strong>Disponible:</strong> {typeof habitacion.disponible === 'boolean' ? (habitacion.disponible ? 'Sí' : 'No') : 'N/A'}</p>
               </div>
 
               <div className="habitacion-acciones">
-                <Link to={`/habitaciones/editar/${habitacion.idHabitacion}`} className="btn-editar">
+                <Link to={`/habitaciones/editar/${habitacion.numeroHabitacion}`} className="btn-editar">
                   Editar
                 </Link>
-                <button 
-                  onClick={() => eliminarHabitacion(habitacion.idHabitacion)} 
+                <button
+                  onClick={() => eliminarHabitacion(habitacion.numeroHabitacion)}
                   className="btn-eliminar"
                 >
                   Eliminar
                 </button>
               </div>
-
+              <div className="cambio-estado">
+                <label htmlFor={`estado-select-${habitacion.numeroHabitacion}`}>Cambiar Estado:</label>
+                <select
+                  id={`estado-select-${habitacion.numeroHabitacion}`}
+                  value={habitacion.estado}
+                  onChange={(e) => handleEstadoChange(habitacion.numeroHabitacion, e.target.value)}
+                >
+                  <option value="LIBRE">Libre</option> {/*  */}
+                  <option value="OCUPADO">Ocupado</option> {/*  */}
+                  <option value="LIMPIEZA">Limpieza</option> {/*  */}
+                  <option value="MANTENIMIENTO">Mantenimiento</option>
+                </select>
+              </div>
             </div>
           ))}
         </div>

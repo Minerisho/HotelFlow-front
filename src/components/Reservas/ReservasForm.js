@@ -1,44 +1,58 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { useNavigate } from 'react-router-dom';
+import { reservaService, habitacionService, clienteService } from '../../Services/api'; // Ajusta la ruta
 import "./ReservasForm.css";
 
 const ReservasForm = () => {
-  const [habitaciones, setHabitaciones] = useState([]);
-  const [usuarios, setUsuarios] = useState([]);
-  const [mensaje, setMensaje] = useState("");
+  const navigate = useNavigate();
+  // const { idReserva: paramIdReserva } = useParams(); // Para edición, si se implementa
+  // const isEditing = Boolean(paramIdReserva); // Para edición
 
+  const [habitacionesDisponibles, setHabitacionesDisponibles] = useState([]);
+  const [clientes, setClientes] = useState([]);
+  const [mensaje, setMensaje] = useState({ text: "", type: "" });
+  const [loading, setLoading] = useState(false); // Para deshabilitar botón durante submit
+
+  // Payload para POST /api/reservas según PDF (1.5.1)
+  // { idCliente, numeroHabitacion, fechaLlegadaEstadia, fechaSalidaEstadia, tipoPago, fechaReserva }
   const [formData, setFormData] = useState({
-    idHabitacion: "",
-    idUsuario: "",
-    fechaEntrada: "",
-    fechaSalida: "",
-    estado: "PENDIENTE" // Valor por defecto
+    idCliente: "",
+    numeroHabitacion: "",
+    fechaLlegadaEstadia: "",
+    fechaSalidaEstadia: "",
+    tipoPago: "EFECTIVO", // Valor por defecto según PDF (1.5.1)
+    fechaReserva: new Date().toISOString().split('T')[0], // Fecha actual por defecto
   });
 
-  // Cargar la lista de habitaciones disponibles
   useEffect(() => {
-    const fetchHabitaciones = async () => {
+    const fetchInitialData = async () => {
+      setLoading(true);
       try {
-        const response = await axios.get("http://localhost:8094/api/habitaciones/estado/DISPONIBLE");
-        setHabitaciones(response.data);
+        // El PDF (1.3.2) indica que GET /habitaciones acepta ?estado=LIBRE
+        const habResponse = await habitacionService.getAll({ estado: 'LIBRE' });
+        setHabitacionesDisponibles(Array.isArray(habResponse) ? habResponse : []);
+
+        // El PDF (1.4.2) indica GET /api/clientes para listar clientes
+        const cliResponse = await clienteService.getAll();
+        setClientes(Array.isArray(cliResponse) ? cliResponse : []);
+
       } catch (error) {
-        setMensaje("Error al obtener las habitaciones: " + error.message);
+        console.error("Error al cargar datos iniciales:", error);
+        setMensaje({ text: "Error al cargar datos para el formulario: " + (error.message || "Error desconocido"), type: "error" });
+      } finally {
+        setLoading(false);
       }
     };
 
-    // Obtener los usuarios con rol HUESPED usando el endpoint actualizado
-    const fetchUsuarios = async () => {
-      try {
-        const response = await axios.get("http://localhost:8094/api/usuarios/list/huespedes");
-        setUsuarios(response.data);
-      } catch (error) {
-        setMensaje("Error al obtener los usuarios: " + error.message);
-      }
-    };
-
-    fetchHabitaciones();
-    fetchUsuarios();
+    fetchInitialData();
   }, []);
+
+  // Lógica para cargar datos de reserva si es modo edición (a implementar si es necesario)
+  // useEffect(() => {
+  //   if (isEditing && paramIdReserva) {
+  //     // ... cargar datos de la reserva
+  //   }
+  // }, [isEditing, paramIdReserva]);
 
   const manejarCambio = (e) => {
     const { name, value } = e.target;
@@ -48,93 +62,135 @@ const ReservasForm = () => {
     }));
   };
 
-  const crearReserva = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setMensaje({ text: "", type: "" });
+
+    if (!formData.idCliente || !formData.numeroHabitacion || !formData.fechaLlegadaEstadia || !formData.fechaSalidaEstadia || !formData.tipoPago || !formData.fechaReserva) {
+      setMensaje({ text: "Por favor, complete todos los campos obligatorios.", type: "error" });
+      setLoading(false);
+      return;
+    }
+    if (new Date(formData.fechaSalidaEstadia) <= new Date(formData.fechaLlegadaEstadia)) {
+      setMensaje({ text: "La fecha de salida debe ser posterior a la fecha de llegada.", type: "error" });
+      setLoading(false);
+      return;
+    }
+
     try {
-      // Se construye el objeto payload y se convierten los IDs a números (si es necesario)
       const payload = {
-        idUsuario: parseInt(formData.idUsuario, 10),
-        idHabitacion: parseInt(formData.idHabitacion, 10),
-        fechaEntrada: formData.fechaEntrada,
-        fechaSalida: formData.fechaSalida,
-        estado: formData.estado // Enviar estado incluso si la API lo asigna por defecto
+        idCliente: parseInt(formData.idCliente, 10),
+        numeroHabitacion: parseInt(formData.numeroHabitacion, 10),
+        fechaLlegadaEstadia: formData.fechaLlegadaEstadia,
+        fechaSalidaEstadia: formData.fechaSalidaEstadia,
+        tipoPago: formData.tipoPago,
+        fechaReserva: formData.fechaReserva,
       };
 
-      await axios.post("http://localhost:8094/api/reservas", payload);
-      setMensaje("Reserva creada con éxito");
+      // if (isEditing) {
+      //   await reservaService.update(paramIdReserva, payload);
+      //   setMensaje({ text: "Reserva actualizada con éxito. Redirigiendo...", type: "success" });
+      // } else {
+      await reservaService.create(payload); //
+      setMensaje({ text: "Reserva creada con éxito. Redirigiendo...", type: "success" });
+      // }
 
-      // Reinicia el formulario, manteniendo el valor "PENDIENTE" en el campo de estado
-      setFormData({
-        idHabitacion: "",
-        idUsuario: "",
-        fechaEntrada: "",
-        fechaSalida: "",
-        estado: "PENDIENTE"
-      });
+      setTimeout(() => {
+        navigate('/reservas');
+      }, 2000);
+
     } catch (error) {
-      setMensaje("Error al crear la reserva: " + error.message);
+      console.error("Error al procesar la reserva:", error);
+      setMensaje({ text: `Error al procesar la reserva: ${error.response?.data?.message || error.message}`, type: "error" });
+      setLoading(false);
     }
+    // No poner setLoading(false) aquí si hay redirección, para evitar flash de botón habilitado.
   };
 
   return (
     <div className="reservas-form-container">
-      <h2>Crear Reserva</h2>
-      {mensaje && <p className="mensaje">{mensaje}</p>}
+      {/* <h2>{isEditing ? 'Editar Reserva' : 'Crear Nueva Reserva'}</h2> */}
+      <h2>Crear Nueva Reserva</h2>
+      {mensaje.text && <p className={`mensaje ${mensaje.type}`}>{mensaje.text}</p>}
 
-      <div className="form-group">
-        <label>Habitación Desocupada:</label>
-        <select name="idHabitacion" value={formData.idHabitacion} onChange={manejarCambio}>
-          <option value="">Seleccione una habitación</option>
-          {habitaciones.map(habitacion => (
-            <option key={habitacion.idHabitacion} value={habitacion.idHabitacion}>
-              {habitacion.numero} - {habitacion.tipo}
-            </option>
-          ))}
-        </select>
-      </div>
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label htmlFor="numeroHabitacion">Habitación Disponible:</label>
+          <select id="numeroHabitacion" name="numeroHabitacion" value={formData.numeroHabitacion} onChange={manejarCambio} required>
+            <option value="">Seleccione una habitación</option>
+            {/* HabitacionDTO: numeroHabitacion, tipo, precio  */}
+            {habitacionesDisponibles.map(habitacion => (
+              <option key={habitacion.numeroHabitacion} value={habitacion.numeroHabitacion}>
+                Hab. {habitacion.numeroHabitacion} - {habitacion.tipo} (${habitacion.precio})
+              </option>
+            ))}
+          </select>
+        </div>
 
-      <div className="form-group">
-        <label>Huésped:</label>
-        <select name="idUsuario" value={formData.idUsuario} onChange={manejarCambio}>
-          <option value="">Seleccione un huésped</option>
-          {usuarios.map(usuario => (
-            <option key={usuario.idUsuario} value={usuario.idUsuario}>
-              {usuario.nombre} {usuario.apellido}
-            </option>
-          ))}
-        </select>
-      </div>
+        <div className="form-group">
+          <label htmlFor="idCliente">Cliente (Huésped):</label>
+          <select id="idCliente" name="idCliente" value={formData.idCliente} onChange={manejarCambio} required>
+            <option value="">Seleccione un cliente</option>
+            {/* Entidad Cliente: idCliente, nombres, apellidos, cedula  */}
+            {clientes.map(cliente => (
+              <option key={cliente.idCliente} value={cliente.idCliente}>
+                {cliente.nombres} {cliente.apellidos} (C.C: {cliente.cedula})
+              </option>
+            ))}
+          </select>
+        </div>
 
-      <div className="form-group">
-        <label>Fecha de Entrada:</label>
-        <input
-          type="datetime-local"
-          name="fechaEntrada"
-          value={formData.fechaEntrada}
-          onChange={manejarCambio}
-        />
-      </div>
+        <div className="form-group">
+          <label htmlFor="fechaLlegadaEstadia">Fecha y Hora de Llegada:</label>
+          <input
+            type="datetime-local" // El PDF espera YYYY-MM-DD
+            id="fechaLlegadaEstadia"
+            name="fechaLlegadaEstadia"
+            value={formData.fechaLlegadaEstadia}
+            onChange={manejarCambio}
+            required
+          />
+        </div>
 
-      <div className="form-group">
-        <label>Fecha de Salida:</label>
-        <input
-          type="datetime-local"
-          name="fechaSalida"
-          value={formData.fechaSalida}
-          onChange={manejarCambio}
-        />
-      </div>
+        <div className="form-group">
+          <label htmlFor="fechaSalidaEstadia">Fecha y Hora de Salida:</label>
+          <input
+            type="datetime-local" // El PDF espera YYYY-MM-DD
+            id="fechaSalidaEstadia"
+            name="fechaSalidaEstadia"
+            value={formData.fechaSalidaEstadia}
+            onChange={manejarCambio}
+            required
+          />
+        </div>
 
-      <div className="form-group">
-        <label>Estado de la Reserva:</label>
-        <select name="estado" value={formData.estado} onChange={manejarCambio}>
-          <option value="PENDIENTE">PENDIENTE</option>
-          <option value="CONFIRMADA">CONFIRMADA</option>
-        </select>
-      </div>
+        <div className="form-group">
+          <label htmlFor="tipoPago">Método de Pago:</label>
+          {/* Valores tipoPago: EFECTIVO, NEQUI, BANCOLOMBIA  */}
+          <select id="tipoPago" name="tipoPago" value={formData.tipoPago} onChange={manejarCambio} required>
+            <option value="EFECTIVO">Efectivo</option>
+            <option value="NEQUI">Nequi</option>
+            <option value="BANCOLOMBIA">Bancolombia</option>
+          </select>
+        </div>
 
-      <button className="btn-crear" onClick={crearReserva}>
-        Crear
-      </button>
+        <div className="form-group">
+          <label htmlFor="fechaReserva">Fecha de Creación Reserva:</label>
+          <input
+            type="date" // El PDF espera YYYY-MM-DD 
+            id="fechaReserva"
+            name="fechaReserva"
+            value={formData.fechaReserva}
+            onChange={manejarCambio}
+            required
+          />
+        </div>
+
+        <button type="submit" className="btn-crear" disabled={loading}>
+          {loading ? 'Procesando...' : (/*isEditing ? 'Actualizar Reserva' :*/ 'Crear Reserva')}
+        </button>
+      </form>
     </div>
   );
 };

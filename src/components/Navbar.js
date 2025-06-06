@@ -46,14 +46,14 @@ const Navbar = () => {
           <li className="navbar-item">
             <Link to="/clientes">Clientes</Link>
           </li>
-          {/* Nuevos enlaces */}
+          {/* Nuevos enlaces 
           <li className="navbar-item">
             <Link to="/consumos">Consumos</Link>
           </li>
           <li className="navbar-item">
             <Link to="/pagos">Pagos</Link>
-          </li>
-
+          </li> 
+            */}
           {/* Enlaces condicionales para ADMIN */}
           {displayRole === 'ADMIN' && (
             <>

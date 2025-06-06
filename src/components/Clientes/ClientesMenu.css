@@ -55,4 +55,15 @@
   background-color: #dd6b20;
   color: white;
   transform: translateY(-2px);
+
+
 }
+
+.btn-verde {
+  background-color: #28a745;
+  color: white;
+}
+.btn-verde:hover {
+  background-color: #218838;
+}
+

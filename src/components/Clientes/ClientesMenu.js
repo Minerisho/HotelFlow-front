@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import './ClientesMenu.css'; // Usamos el CSS ajustado abajo
+import './ClientesMenu.css';
 
 const ClientesMenu = () => {
   return (
@@ -12,6 +12,9 @@ const ClientesMenu = () => {
         </Link>
         <Link to="/clientes/checkout" className="clientes-btn-link btn-amarillo">
           Hacer Check-out
+        </Link>
+        <Link to="/clientes/historial" className="clientes-btn-link btn-verde">
+          Ver Historial
         </Link>
       </div>
     </div>

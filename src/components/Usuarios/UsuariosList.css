@@ -1,0 +1,57 @@
+.usuarios-container {
+  max-width: 1000px;
+  margin: auto;
+  padding: 2rem;
+  background-color: #f9fafb;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.titulo {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #1a202c;
+  font-weight: bold;
+}
+
+.tabla-container {
+  overflow-x: auto;
+  margin-top: 2rem;
+}
+
+.tabla-usuarios {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.tabla-usuarios th {
+  background-color: #4a90e2;
+  color: white;
+  padding: 12px;
+  text-align: left;
+}
+
+.tabla-usuarios td {
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
+}
+
+.tabla-usuarios tr:hover {
+  background-color: #f1f5f9;
+}
+
+.btn-eliminar {
+  background-color: #e53935;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.btn-eliminar:hover {
+  background-color: #c62828;
+}

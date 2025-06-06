@@ -19,6 +19,11 @@ import ConsumoList from './components/Consumos/ConsumoList';
 import ConsumoForm from './components/Consumos/ConsumoForm';
 import PagoList from './components/Pagos/PagoList';
 import PagoForm from './components/Pagos/PagoForm';
+import UsuariosList from './components/Usuarios/UsuariosList';
+import HistorialClientes from './components/Clientes/HistorialClientes';
+
+
+
 // import UsuarioList from './components/Usuarios/UsuarioList';
 // import UsuarioForm from './components/Usuarios/UsuarioForm';
 
@@ -123,6 +128,10 @@ const AppContent = () => {
           <Route path="/consumos/nuevo" element={<PrivateRoute><ConsumoForm /></PrivateRoute>} />
           <Route path="/pagos" element={<PrivateRoute><PagoList /></PrivateRoute>} />
           <Route path="/pagos/nuevo" element={<PrivateRoute><PagoForm /></PrivateRoute>} />
+          <Route path="/usuarios" element={<UsuariosList />} />
+          <Route path="/clientes/historial" element={<HistorialClientes />} />
+
+
           {/* <Route path="/usuarios" element={<PrivateRoute><UsuarioList /></PrivateRoute>} /> */}
           {/* <Route path="/usuarios/nuevo" element={<PrivateRoute><UsuarioForm /></PrivateRoute>} /> */}
           {/* <Route path="/usuarios/editar/:id" element={<PrivateRoute><UsuarioForm /></PrivateRoute>} /> */}

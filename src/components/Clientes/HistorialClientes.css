@@ -1,0 +1,94 @@
+.historial-container {
+  max-width: 1000px;
+  margin: auto;
+  padding: 2rem;
+  background-color: #f9fafb;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.titulo {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #1a202c;
+  font-weight: bold;
+}
+
+.formulario-filtros {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.formulario-filtros input,
+.formulario-filtros select {
+  padding: 8px 12px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  min-width: 180px;
+  transition: border-color 0.3s ease;
+}
+
+.formulario-filtros input:focus,
+.formulario-filtros select:focus {
+  border-color: #4caf50;
+  outline: none;
+}
+
+.tabla-container {
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+
+.tabla-historial {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.tabla-historial th {
+  background-color: #4a90e2;
+  color: white;
+  padding: 12px;
+  text-align: left;
+}
+
+.tabla-historial td {
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
+}
+
+.tabla-historial tr:hover {
+  background-color: #f1f5f9;
+}
+
+.formulario-filtros {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.formulario-filtros input {
+  padding: 0.5rem;
+  font-size: 1rem;
+}
+
+.btn-limpiar {
+  padding: 0.5rem 1rem;
+  background-color: #d9534f;
+  border: none;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-limpiar:hover {
+  background-color: #c9302c;
+}
